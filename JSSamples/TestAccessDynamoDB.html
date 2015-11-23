@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<!-- ################################Header Part############################################### -->
+<head>
+    <meta charset="UTF-8">
+    <title>测试访问DynamoDB</title>
+    <!-- 被引用的JS文件 -->
+    <script src="aws-sdk-2.2.16.js"></script>
+    
+    <script type="text/javascript">
+
+        console.log("1. 初始化AWS 配置");
+
+        //×××××××××××××××××××××直接在代码中使用AcessKeyId和SecretAccessKey仅仅限于内部开发和测试环境××××××××××××××××××××××××××××
+        //AWS.config.update({accessKeyId: 'AKIAJGWNHKXXXXXXXXXX', secretAccessKey: 'ote9UPinBU6wd1vnMLjuXXXXXXXXXXXXXXXXX'});
+
+        //在生产环境使用来自Cognito identity pool为非认证用户提供的临时证书
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: 'us-east-1:99ba3f3e-febd-465f-aaf1-f5b9c5af9822'
+        });
+
+        console.log("2. 设置区域");
+
+        //AWS.config.region = 'ap-southeast-1';
+        AWS.config.region = 'us-east-1'; //必须是你创建Cognito identity pool和DynamoDB表所在的区域    
+    </script>
+    
+</head>
+
+<!-- ################################Body Part############################################### -->
+<body>
+    <div>
+        1.本例子测试如何利用JS脚本获取AWS DynamoDB数据的信息<br>
+        2.测试过程中请使用google或者火狐浏览器打开本HTML文件，同时按下F12键启动浏览器的调试功能以便查看控制台日志输出<br>
+        3.如果测试过程中出现CORS跨域访问限制，请使用命令行参数禁止浏览器的安全检查功能<br>
+        4.下面是google浏览器禁用安全方式启动的命令：<br>     
+        "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --disable-web-security<br>
+    </div>  
+    
+    <div id="status"></div>
+    <ul id="objects"></ul> 
+    
+    <script type="text/javascript">
+
+        console.log("3. 构造DynamoDB客户端对象");
+
+        var db = new AWS.DynamoDB();
+
+        console.log("4. 远程HTTP请求调用，试图列出DynamoDB中的所有表名称");
+
+        db.listTables(function(err, data) 
+        {
+        
+            if (err) 
+            {
+                console.log("4.1. 远程操作执行失败，显示错误消息");
+                
+                document.getElementById('status').innerHTML =
+                    'Could not list table names from DynamoDB';
+            } 
+            else 
+            {
+                console.log("4.2. 远程操作执行成功，显示所有的表名称");
+                
+                document.getElementById('status').innerHTML =
+                    'Loaded ' + data.TableNames.length + ' items from DynamoDB';
+                    
+                for (var i = 0; i < data.TableNames.length; i++) 
+                {
+                    document.getElementById('objects').innerHTML += 
+                        '<li>' + data.TableNames[i] + '</li>';
+                }
+            }
+            
+            console.log("4.3 回调事件响应方法退出");
+        });
+
+        console.log("5. JS脚本同步执行结束");
+    
+    </script>
+          
+</body>
+</html>

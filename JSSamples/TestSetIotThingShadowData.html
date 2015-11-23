@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<!-- ################################Header Part############################################### -->
+<head>
+    <meta charset="UTF-8">
+    <title>测试修改thing shadow当前的状态</title>
+
+    <script src="aws-sdk-2.2.16.js"></script>
+    <script type="text/javascript">
+
+        console.log("1. 初始化AWS 配置");
+
+        //×××××××××××××××××××××直接在代码中使用AcessKeyId和SecretAccessKey仅仅限于内部开发和测试环境××××××××××××××××××××××××××××
+        //AWS.config.update({accessKeyId: 'AKIAJGWNHKXXXXXXXXXX', secretAccessKey: 'ote9UPinBU6wd1vnMLjuXXXXXXXXXXXXXXXXX'});
+
+        //在生产环境使用来自Cognito identity pool为非认证用户提供的临时证书
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: 'us-east-1:99ba3f3e-febd-465f-aaf1-f5b9c5af9822'
+        });
+
+        console.log("2. 设置区域");
+
+        //AWS.config.region = 'ap-southeast-1';
+        AWS.config.region = 'us-east-1'; //必须是你创建Cognito identity pool和IOT服务所在的区域    
+    </script>
+</head>
+
+<!-- ################################Body Part############################################### -->
+<body>
+    <div>
+        1.本例子测试如何利用JS脚本修改IOT thingshadow状态数据的信息<br>
+        2.测试过程中请使用google或者火狐浏览器打开本HTML文件，同时按下F12键启动浏览器的调试功能以便查看控制台日志输出<br>
+        3.如果测试过程中出现CORS跨域访问限制，请使用命令行参数禁止浏览器的安全检查功能或者在S3对应存储桶设置允许CORS访问<br>
+        4.下面是google浏览器禁用安全方式启动的命令：<br>     
+        "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --disable-web-security<br>
+    </div> 
+    
+    <div id="status"></div>
+    <ul id="objects"></ul>
+    
+    <!-- 利用JS脚本动态修改浏览器内容 -->
+    <script type="text/javascript">
+    
+        console.log("3. 构造参数对象，提供thing名字和修改后的值");
+        
+        var params = {
+            payload: '{"state":{"desired":{"red":287,"green":314,"blue":322}}}',//单引号内必须是完整的修改后内容json字符串
+            thingName: 'mything003' //这个是我之前用命令行创建的IOT thing对象
+        };
+    
+        console.log("4. 构造IotData对象用来访问thing shadow的数据");
+        
+        var iotdata = new AWS.IotData({endpoint: 'data.iot.us-east-1.amazonaws.com'}); //注意endpoint的写法
+    
+        console.log("5. 调用HTTP远程接口，试图修改指定名称的thing shadow当前的状态数据");
+        
+        iotdata.updateThingShadow(params, function (err, data) 
+        {
+            console.log("5.1 远程HTTP调用已经返回");
+            
+            if (err) 
+            {
+                console.log("5.2 操作执行失败");
+                
+                console.log(err, err.stack); // an error occurred
+                
+                document.getElementById('status').innerHTML =
+                    '更新IOT thing shadow状态操作失败，详情请见日志内容';
+            }    
+            else    
+            { 
+                console.log("5.3 操作执行成功");
+                console.log(data); // successful response
+                
+                document.getElementById('status').innerHTML =
+                    '更新IOT thing shadow状态操作成功，详情请见日志内容';
+            }    
+    
+        });
+        
+        console.log("6. JS脚本同步执行结束");
+    </script>
+</body>
+
+</html>
