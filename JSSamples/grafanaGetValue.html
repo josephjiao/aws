@@ -6,12 +6,33 @@
 <link rel="stylesheet" href="css/jquery.switchButton.css">
 
 <div class="switch-wrapper">
-  <input type="checkbox" value="1" checked/>
-	<script type="text/javascript">
+  <input id="MusicPlayerStatusPanel" type="checkbox" value="1" checked/>
+    <script type="text/javascript">
 	$("input[type=checkbox]").switchButton({
+	  on_label: 'Playing',
+	  off_label: 'Pause',
 	  width: 100,
 	  height: 40,
 	  button_width: 50
 	});
+
+      function refreshMyPanel() {
+        $.ajax({url: "https://phxr0pfzik.execute-api.us-west-2.amazonaws.com/prod/getMusicPlayerStatus"}).done( 
+          function(data) { 
+            $("#MusicPlayerStatusPanel").checked=false;
+            //setTimeout(function() { $("#myTextPanel").closest(".panel-container").find('.panel-loading').addClass("ng-hide"); }, 1000);
+          } 
+        );
+      }
+
+      $(document).ready(function() {
+        refreshMyPanel(); // For the initial load of data
+
+        // Refetch data every time the "refresh" event is broadcast
+        angular.element($("#MusicPlayerStatusPanel")).scope().$on("refresh", function() {
+          refreshMyPanel();
+        });
+      });
+
     </script>
 </div>
