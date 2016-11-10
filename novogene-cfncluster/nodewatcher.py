@@ -128,6 +128,7 @@ def selfTerminate(region, asg, instance_id):
     _as_conn = boto.ec2.autoscale.connect_to_region(region,proxy=boto.config.get('Boto', 'proxy'),
                                           proxy_port=boto.config.get('Boto', 'proxy_port'))
     if not maintainSize(region, asg):
+        scpLogs()
         log.info("terminating %s" % instance_id)
         _as_conn.terminate_instance(instance_id, decrement_capacity=True)
 
@@ -145,20 +146,6 @@ def maintainSize(region, asg):
         log.debug('capacity less then or equal to min size.')
         return True
 
-class FakeSecHead(object):
-    def __init__(self, fp):
-        self.fp = fp
-        self.sechead = '[asection]\n'
-
-    def readline(self):
-        if self.sechead:
-            try: 
-                return self.sechead
-            finally: 
-                self.sechead = None
-        else: 
-            return self.fp.readline()
-
 def __runSgeCommand(command):
     log.debug(repr(command))
     _command = shlex.split(str(command))
@@ -174,16 +161,7 @@ def scpLogs():
     hostname = socket.gethostname()
 
     # tar log
-    command = ("/bin/tar czvf /tmp/%s.tgz /var/log " % hostname)
-    __runSgeCommand(command)
-
-    # get master ip 
-    cp = ConfigParser.SafeConfigParser()
-    cp.readfp(FakeSecHead(open('/etc/cfncluster/cfnconfig')))
-    masterIp = cp.items('asection').['cfn_master']
-
-    # scp it
-    command = ("/usr/bin/scp -i /home/ec2-user/.ssh/id_rsa ./%s ec2-user@%s:~" % (logfilename, masterIp) )
+    command = ("/bin/tar czvf /home/ec2-user/%s.tgz /var/log " % hostname)
     __runSgeCommand(command)
 
 def main():
