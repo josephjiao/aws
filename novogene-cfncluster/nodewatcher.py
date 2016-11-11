@@ -13,6 +13,7 @@
 
 __author__ = 'dougalb'
 
+import subprocess as sub
 from datetime import datetime
 import boto.ec2
 import dateutil.parser
