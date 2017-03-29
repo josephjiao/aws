@@ -4,7 +4,7 @@ import boto.ec2, os
 
 # Connect to EC2 in this region
 #region = os.environ.get('cn-north-1')
-connection = boto.ec2.connect_to_region("cn-north-1")
+connection = boto.ec2.connect_to_region("us-west-2")
 
 # Get a list of all instances
 reservations = connection.get_all_instances()
