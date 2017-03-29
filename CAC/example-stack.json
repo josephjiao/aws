@@ -1,0 +1,25 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Resources": {
+    "ProcessKinesisRecords": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "putMetricToCloudwatch.handler",
+        "Runtime": "nodejs4.3",
+        "Policies": "AWSLambdaKinesisExecutionRole",
+        "Policies": "CloudWatchFullAccess",
+        "Events": {
+          "Stream": {
+            "Type": "Kinesis",
+            "Properties": {
+              "Stream": "arn:aws:kinesis:us-west-2:431701745729:stream/examplestream",
+              "BatchSize": 100,
+              "StartingPosition": "TRIM_HORIZON"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "Resources": {
+    "HelloWorldFn": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "Role": "arn:aws:iam::551473449163:role/lambda_kinesis_role",
+        "Code": {
+          "ZipFile": {
+            "Fn::Join": [
+              "\n",
+              [
+                "exports.handler = function(event, context) {",
+                "  console.log('hello world!');",
+                "};"
+              ]
+            ]
+          }
+        },
+        "Runtime": "nodejs4.3"
+      }
+    },
+    "GreetingStream": {
+      "Type": "AWS::Kinesis::Stream",
+      "Properties": {
+        "Name": "GreetingStream",
+        "ShardCount": 1
+      }
+    },
+    "GreetingStreamEventSource": {
+      "Type": "AWS::Lambda::EventSourceMapping",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "HelloWorldFn"
+        },
+        "Enabled": true,
+        "EventSourceArn": {
+          "Fn::GetAtt": [
+            "GreetingStream",
+            "Arn"
+          ]
+        },
+        "StartingPosition": "TRIM_HORIZON"
+      }
+    }
+  }
+}
