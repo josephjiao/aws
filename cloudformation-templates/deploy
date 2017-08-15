@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export AWS_PROFILE=cn
+#echo -n "Enter S3 Bucket to host the templates and scripts > "
+#read bucket
+bucket='cf-templates-jy' 
+
+aws s3 cp ecs-blue-green-deployment.yaml "s3://${bucket}" --acl public-read
+aws s3 cp --recursive templates/ "s3://${bucket}/templates" --acl public-read
+aws s3 cp --recursive scripts/ "s3://${bucket}/scripts" --acl public-read
+aws s3api put-bucket-versioning --bucket "${bucket}" --versioning-configuration Status=Enabled
+aws cloudformation deploy --stack-name testEnv --template-file ecs-blue-green-deployment.yaml --capabilities CAPABILITY_NAMED_IAM --parameter-overrides TemplateBucket=$bucket

@@ -1,0 +1,40 @@
+Description: >
+  This template is used to setup test env. 
+
+
+Parameters:
+  TemplateBucket:
+    Type: String
+    Description: >
+      S3 Bucket used for nested templates
+
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub http://s3.cn-north-1.amazonaws.com.cn/${TemplateBucket}/templates/vpc.yaml
+      Parameters:
+        Name: !Ref AWS::StackName
+        VpcCIDR: 10.22.0.0/16
+        Subnet1CIDR: 10.22.10.0/24
+        Subnet2CIDR: 10.22.20.0/24
+        Subnet3CIDR: 10.22.30.0/24
+        Subnet4CIDR: 10.22.40.0/24
+
+
+Outputs:
+ VPC:
+    Description: new created VPC 
+    Value: !GetAtt VPC.Outputs.VpcId
+ Subnet1:
+    Description: Subnet1 
+    Value: !GetAtt VPC.Outputs.Subnet1
+ Subnet2:
+    Description: Subnet2
+    Value: !GetAtt VPC.Outputs.Subnet2
+ Subnet3:
+    Description: Subnet3 
+    Value: !GetAtt VPC.Outputs.Subnet3
+ Subnet4:
+    Description: Subnet4 
+    Value: !GetAtt VPC.Outputs.Subnet4
