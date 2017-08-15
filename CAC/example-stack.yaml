@@ -11,6 +11,10 @@ Resources:
         Stream:
           Type: Kinesis
           Properties:
-            Stream: arn:aws:kinesis:us-west-2:431701745729:stream/examplestream
+            Stream: !GetAtt ExampleStream.Arn 
             BatchSize: 100
             StartingPosition: TRIM_HORIZON
+  ExampleStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      ShardCount: 1
